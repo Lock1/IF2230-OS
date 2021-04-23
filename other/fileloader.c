@@ -28,8 +28,12 @@
 #define ENTRY_BYTE_OFFSET 0x1 // "S" byte, entry index at sectors filesystem
 #define PATHNAME_BYTE_OFFSET 0x2 // 14 bytes, filled with pathnames
 
+#define SECTORS_ENTRY_SIZE 0x10 // 16 bytes for 1 entry in sectors filesystem
+#define SECTORS_ENTRY_COUNT (SECTOR_SIZE/SECTORS_ENTRY_SIZE)
+
 // Predefined values in sectors filesystem
 #define EMPTY_SECTORS_ENTRY 0x00 // For empty entry
+#define FILLED_EMPTY_SECTORS_BYTE 0x01 // For empty bytes in non-empty entry (ex. entry "24 2F 22 01 01 01 01 01 ..." is non-empty entry)
 
 
 void clear(unsigned char *string, int length) {
@@ -87,8 +91,8 @@ void strcpybounded(unsigned char *dest, const char *src, int n) {
 }
 
 int main(int argc, char const *argv[]) {
-    if (argc < 3) {
-        fprintf(stderr, "Usage : loadFile <target> <file>\n");
+    if (argc < 4) {
+        fprintf(stderr, "Usage : loadFile <target> <file> <parent idx>\n");
         exit(1);
     }
     // Load entire file and save to buffer
@@ -135,7 +139,7 @@ int main(int argc, char const *argv[]) {
                     f_entry_sector_idx = i;
                     f_entry_idx = j;
                 }
-                if (!modstrcmp(argv[2], targetbuffer[i]+PATHNAME_BYTE_OFFSET+j))
+                if (!modstrcmp(argv[2], targetbuffer[i]+PATHNAME_BYTE_OFFSET+j) && (targetbuffer[i][PARENT_BYTE_OFFSET+j] == atoi(argv[3])))
                     valid_filename = false;
             }
         }
@@ -175,7 +179,7 @@ int main(int argc, char const *argv[]) {
         while (byte_left > 0 && map_idx < (SECTOR_SIZE >> 1)) {
             if (targetbuffer[MAP_SECTOR][map_idx] == EMPTY_MAP_ENTRY) {
                 targetbuffer[MAP_SECTOR][map_idx] = FILLED_MAP_ENTRY;
-                targetbuffer[SECTORS_SECTOR][sectors_entry_idx*0x10+sector_idx] = map_idx;
+                targetbuffer[SECTORS_SECTOR][sectors_entry_idx*SECTORS_ENTRY_SIZE+sector_idx] = map_idx;
                 sector_idx++;
                 memcpybounded(targetbuffer[map_idx], inputbuffer+current_file_segment*SECTOR_SIZE, SECTOR_SIZE);
                 current_file_segment++;
@@ -185,7 +189,12 @@ int main(int argc, char const *argv[]) {
             map_idx++;
         }
 
-        targetbuffer[f_entry_sector_idx][PARENT_BYTE_OFFSET+f_entry_idx] = ROOT_PARENT_FOLDER;
+        while (sector_idx < SECTORS_ENTRY_SIZE) {
+            targetbuffer[SECTORS_SECTOR][sectors_entry_idx*SECTORS_ENTRY_SIZE+sector_idx] = FILLED_EMPTY_SECTORS_BYTE;
+            sector_idx++;
+        }
+
+        targetbuffer[f_entry_sector_idx][PARENT_BYTE_OFFSET+f_entry_idx] = atoi(argv[3]);
         targetbuffer[f_entry_sector_idx][ENTRY_BYTE_OFFSET+f_entry_idx] = sectors_entry_idx;
         rawstrcpybounded(targetbuffer[f_entry_sector_idx]+PATHNAME_BYTE_OFFSET+f_entry_idx, argv[2], 14);
         write_success = true;
@@ -205,7 +214,7 @@ int main(int argc, char const *argv[]) {
         printf("Files - Entry sector : 0x%x\n", f_entry_sector_idx);
         printf("Files - Entry index  : 0x%x\n", f_entry_idx);
         printf("Files - Entry offset : 0x%x\n", f_entry_sector_idx*SECTOR_SIZE + 0x10*f_entry_idx);
-        printf("Files - P byte       : 0x%x\n", ROOT_PARENT_FOLDER);
+        printf("Files - P byte       : %s\n", argv[3]);
         printf("Files - S byte       : 0x%x\n", sectors_entry_idx);
         printf("Files - Pathname     : %s\n\n", argv[2]);
 

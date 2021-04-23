@@ -2,12 +2,14 @@
 // v1.1 - Adding 0xFF to file system itself
 // v1.2 - Splitting loop and adding flag system, check kernel.h config
 // v1.3 - More configurable & modular
+// v1.4 - Adding bin folder
 #include <stdio.h>
 #include <stdlib.h>
 
 // Configuration
-#define KERNEL_MAX 32
+#define KERNEL_MAX 17
 #define FILES_ENTRY "\xFF\xFE\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" // Entire 16 bytes of empty files entry
+#define FILES_ENTRY_BIN_FOLDER "\xFF\xFF""bin""\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" // bin folder entry
 
 #define FILESYSTEM_LOCATION 0x100
 #define FILESYSTEM_SIZE 4
@@ -35,8 +37,13 @@ int main(int argc, char const *argv[]) {
             fwrite(EMPTY_MAP_ENTRY, 1, 1, map);
     }
 
-    for (int i = 0; i < (SECTOR_SIZE/0x10 * 2); i++) // 2 files filesystem, 1 entry consist 0x10 bytes
-        fwrite(FILES_ENTRY, 0x10, 1, file);
+    for (int i = 0; i < (SECTOR_SIZE/0x10 * 2); i++) {
+        // 2 sector files filesystem, 1 entry consist 0x10 bytes
+        if (i == 0)
+            fwrite(FILES_ENTRY_BIN_FOLDER, 0x10, 1, file);
+        else
+            fwrite(FILES_ENTRY, 0x10, 1, file);
+    }
 
     for (int i = 0; i < SECTOR_SIZE; i++)
         fwrite(EMPTY_SECTORS_ENTRY, 1, 1, sector);
