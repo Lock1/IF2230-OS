@@ -26,6 +26,9 @@ void rawstrcpybounded(char *dest, char *src, int n);
 char strcmp(char *s1, char *s2);
 // Standard strcmp function
 
+char forcestrcmp(char *s1, char *s2);
+// strcmp function, but ignoring strlen until s1 terminated
+
 void strrev(char *string);
 // Reversing string at pointed location
 
@@ -51,6 +54,10 @@ int getFirstMatchedCharIdx(char c, char *string);
 
 void clear(char *buffer, int length);
 // Clearing string buffer
+
+char isLastSubstring(char *source_string, char *substring);
+// Returning whether substring is substring of source_string
+// located at last element
 
 // ---------------- Standard I/O ----------------
 void print(char *string, char color);
@@ -79,18 +86,3 @@ int getKeyboardCursor(bool isrow);
 
 void scrollScreen();
 // Scroll entire screen upward 1 row
-
-// --- File I/O ---
-void write(char *buffer, char *path, int *returncode, char parentIndex);
-// Write "buffer" with name "path" at "parentIndex" folder
-
-void read(char *buffer, char *path, int *returncode, char parentIndex);
-// Read file with name "path" at "parentIndex" folder and write to "buffer"
-
-void directSectorWrite(char *buffer, int sector);
-// Direct writing to sector, no checking
-
-
-// --- Misc ---
-void memcpy(char *dest, char *src, int bytes);
-// Copying data from src to desc until bytes reached

@@ -3,8 +3,9 @@
 
 **TBA** \
 Repository ini akan digunakan sebagai duplikat public dari repository private yang terdapat pada GitHub Classroom informatika19 \
-Log : 3 April 2021, Upload v2.0.0
-Log : 23 April 2021, Penambahan README.md milestone 3
+Log : 3 April 2021, Upload v2.0.0 \
+Log : 23 April 2021, Penambahan README.md milestone 3 \
+Log : 27 April 2021, Penambahan milestone 3 dan branch baru
 
 ## Anggota:
 Nama                    | NIM

@@ -2,7 +2,7 @@
 
 #include "kernel-header/kernel.h"
 #include "kernel-header/screen.h"
-#include "basic-header/opr.h"
+#include "basic-header/std_opr.h"
 #include "std-header/boolean.h"
 
 void drawPixel(int x, int y, int color) {
@@ -49,7 +49,7 @@ void clearScreen() {
     int i = 0;
     while (i < 4096) {
         charVideoMemoryWrite(2*i, ' ');
-        charVideoMemoryWrite(1 + 2*i, 0x0);
+        // charVideoMemoryWrite(1 + 2*i, 0x0);
         i++;
     }
 }
@@ -149,14 +149,17 @@ void charVideoMemoryWrite(int offset, char character) {
     putInMemory(V_MEM, V_OFFSET + offset, character);
 }
 
-void drawBootLogo() {
-    int i = 0, j = 0;
-    char *logo = LOGO_STRING;
+void drawBootLogo(char *buf) {
+    // Bring your own buffer -someone
+    int i = 0, j = 0, ret_code;
+
+    readFile(buf, LOGO_FILENAME, &ret_code, ROOT_PARENT_FOLDER);
+
 
     interrupt(0x10, 0x0013, 0, 0, 0);
     // Change video mode to 0x13, Graphical 320x200
 
-    bitDraw(LOGO_X_OFFSET + 10, LOGO_Y_OFFSET + 10, 0xE, logo);
+    bitDraw(LOGO_X_OFFSET + 10, LOGO_Y_OFFSET + 10, 0xE, buf);
     printString("\n\n\n\n\n  mangga");
     drawRectangle(LOGO_X_OFFSET + 4, LOGO_Y_OFFSET + 6, 54, 44);
     // Draw logo with offset and color preset

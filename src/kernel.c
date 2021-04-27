@@ -9,21 +9,23 @@
 #include "kernel-header/kernel.h"
 #include "kernel-header/output.h"
 #include "kernel-header/screen.h"
-#include "basic-header/opr.h"
+#include "basic-header/std_opr.h"
 #include "std-header/boolean.h"
-#include "std-header/std.h"
+#include "std-header/std_fileio.h"
+#include "std-header/std_stringio.h"
 
 int main() {
     // Setup
     // DEBUG
-    // char buf[SECTOR_SIZE];
-    // int t;
+    int ret_code;
+    char buf[SECTOR_SIZE*SECTORS_ENTRY_SIZE];
+    clear(buf, SECTOR_SIZE*SECTORS_ENTRY_SIZE);
     makeInterrupt21();
 
     // Initial screen
     clearScreen();
     // DEBUG
-    drawBootLogo();     // Note : drawBootLogo() does not revert video mode
+    drawBootLogo(buf);     // Note : drawBootLogo() does not revert video mode
 
     // Change video mode and spawn shell
     interrupt(0x10, 0x0003, 0, 0, 0);
@@ -38,11 +40,11 @@ int main() {
     // |--> not_a_file
     // this_is_file
     // folder 2
-    // writeFile(FOLDER, "folder 1", &t, ROOT_PARENT_FOLDER);
-    // writeFile(FOLDER, "folder 2", &t, ROOT_PARENT_FOLDER);
-    // writeFile(FOLDER, "inside f1", &t, 0);
-    // writeFile(FOLDER, "another f1", &t, 0);
-    // writeFile(FOLDER, "in in f1", &t, 2);
+    // writeFile(FOLDER, "folder 1", &ret_code, ROOT_PARENT_FOLDER);
+    // writeFile(FOLDER, "folder 2", &ret_code, ROOT_PARENT_FOLDER);
+    // writeFile(FOLDER, "inside f1", &ret_code, 0);
+    // writeFile(FOLDER, "another f1", &ret_code, 0);
+    // writeFile(FOLDER, "in in f1", &ret_code, 2);
     //
     // strtobytes(buf, "ezhd or hddt", SECTOR_SIZE);
     // writeFile(buf, "this_is_file", &t, ROOT_PARENT_FOLDER);
@@ -50,7 +52,25 @@ int main() {
     // writeFile(buf, "not_a_file", &t, 0);
     // writeFile(FOLDER, "ok", &t, 0);
 
-    shell();
+    // Check if /bin exists or not, if not create new
+    readFile(buf, "bin", &ret_code, ROOT_PARENT_FOLDER);
+    if (ret_code == -1)
+        writeFile(CHAR_NULL, "bin", &ret_code, ROOT_PARENT_FOLDER);
+
+    // Check if _mash_cache exist, if exists delete old record
+    readFile(buf, "_mash_cache\0\0\0", &ret_code, ROOT_PARENT_FOLDER);
+    if (ret_code == 0)
+        deleteFile("_mash_cache\0\0\0", &ret_code, ROOT_PARENT_FOLDER);
+
+    clear(buf, SECTOR_SIZE*SECTORS_ENTRY_SIZE);
+    strcpybounded(buf, EMPTY_CACHE, 32);
+    writeFile(buf, "_mash_cache", &ret_code, ROOT_PARENT_FOLDER);
+
+    // Shell executing
+    executeProgram("mash", 0x2000, &ret_code, BIN_PARENT_FOLDER);
+    if (ret_code == -1)
+        print("mash shell not found in bin/", BIOS_LIGHT_RED);
+
     while (true);
 }
 
@@ -68,6 +88,9 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
                     break;
                 case 0x2:
                     scrollScreenSingleRow();
+                    break;
+                case 0x3:
+                    clearScreen();
                     break;
             }
             break;
@@ -104,6 +127,12 @@ void handleInterrupt21(int AX, int BX, int CX, int DX) {
             break;
         case 0x5:
             writeFile(BX, CX, DX, AH);
+            break;
+        case 0x6:
+            executeProgram(BX, CX, DX, AH);
+            break;
+        case 0x7:
+            deleteFile(BX, CX, DX);
             break;
         default:
             printString("Invalid interrupt\n");
@@ -222,11 +251,11 @@ void readFile(char *buffer, char *path, int *result, char parentIndex) {
                 if (files_buf[i][j+PARENT_BYTE_OFFSET] == parentIndex) {
                     // Needed buffer because entry may ignoring null terminator
                     clear(filename_buffer, 16);
-                    strcpybounded(filename_buffer, files_buf[i]+j+PATHNAME_BYTE_OFFSET, 14);
+                    memcpy(filename_buffer, files_buf[i]+j+PATHNAME_BYTE_OFFSET, 14);
                     if (!strcmp(path, filename_buffer)) {
                         is_filename_match_found = true;
                         sectors_entry_idx = files_buf[i][j+ENTRY_BYTE_OFFSET];
-                        if (files_buf[i][j*FILES_ENTRY_SIZE+ENTRY_BYTE_OFFSET] == FOLDER_ENTRY)
+                        if (files_buf[i][j+ENTRY_BYTE_OFFSET] == FOLDER_ENTRY) // FIXME : Check again
                             is_type_is_file = false;
                     }
                 }
@@ -244,8 +273,8 @@ void readFile(char *buffer, char *path, int *result, char parentIndex) {
             while (i < SECTORS_ENTRY_SIZE && sector_read_target != FILLED_EMPTY_SECTORS_BYTE) {
                 clear(file_segment_buffer, SECTOR_SIZE);
                 readSector(file_segment_buffer, sector_read_target);
-                strcpybounded((buffer+i*SECTOR_SIZE), file_segment_buffer, SECTOR_SIZE);
-                // memcpy((buffer+i*SECTOR_SIZE), file_segment_buffer, SECTOR_SIZE); // FIXME : Extra, if fixing read binary file use memcpy
+                // strcpybounded((buffer+i*SECTOR_SIZE), file_segment_buffer, SECTOR_SIZE);
+                memcpy((buffer+i*SECTOR_SIZE), file_segment_buffer, SECTOR_SIZE); // FIXME : Extra, if fixing read binary file use memcpy
                 i++;
                 sector_read_target = sectors_buf[sectors_entry_idx*SECTORS_ENTRY_SIZE + i];
             }
@@ -308,7 +337,7 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
                 if (files_buf[i][j+PARENT_BYTE_OFFSET] == parentIndex) {
                     // Needed buffer because entry may ignoring null terminator
                     clear(filename_buffer, 16);
-                    strcpybounded(filename_buffer, files_buf[i]+j+PATHNAME_BYTE_OFFSET, 14);
+                    memcpy(filename_buffer, files_buf[i]+j+PATHNAME_BYTE_OFFSET, 14);
                     if (!strcmp(path, filename_buffer))
                         valid_filename = false;
                 }
@@ -338,7 +367,7 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
     if (is_empty_dir_exist && valid_parent_folder && valid_filename) {
         // Updating files filesystem buffer
         files_buf[f_entry_sector_idx][f_entry_idx+PARENT_BYTE_OFFSET] = parentIndex;
-        rawstrcpy((files_buf[f_entry_sector_idx]+f_entry_idx+PATHNAME_BYTE_OFFSET), path);
+        memcpy((files_buf[f_entry_sector_idx]+f_entry_idx+PATHNAME_BYTE_OFFSET), path, 14);
 
         // ----------- Folder Writing Branch-----------
         // Folder writing does not need to readSector() sectors and map
@@ -354,8 +383,8 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
         if (buffer_type_is_file) {
             readSector(map_buf, MAP_SECTOR);
             i = 0;
-            buffer_size = strlen(buffer); // In bytes,
-            // FIXME : Extra, due to strlen() stop at null byte, it cannot write in pure binary mode
+            buffer_size = strlenbin(buffer); // In bytes,
+            // WARNING : strlenbin only stop if found n-consecutive null terminator, may cause some problem
             while (i < (SECTOR_SIZE >> 1) && !is_enough_sector) {
                 // Finding empty sector in map
                 if (map_buf[i] == EMPTY_MAP_ENTRY)
@@ -458,6 +487,115 @@ void writeFile(char *buffer, char *path, int *sectors, char parentIndex) {
         (*sectors) = -4; // Parent folder not valid
     else
         (*sectors) = 0;
+}
+
+void deleteFile(char *path, int *returncode, char parentIndex) {
+    // TODO : Extra, Extra, Extra, use multidimensional array damnit
+    char files_buf[2][SECTOR_SIZE], map_buf[SECTOR_SIZE], sectors_buf[SECTOR_SIZE]; // Filesystem buffer
+    char file_segment_buffer[SECTOR_SIZE];
+    char filename_buffer[16];
+    int i = 0, j = 0;
+    int sectors_entry_idx = 0, sector_read_target = 0, files_entry_idx = 0;
+    int files_entry_sector_idx = 0;
+    bool valid_parent_folder = true, is_filename_match_found = false, valid_filename_length = true;
+    bool is_type_is_file = true;
+
+    readSector(files_buf[0], FILES_SECTOR);
+    readSector(files_buf[1], FILES_SECTOR + 1);
+
+    // Filename length check
+    if (strlen(path) > 14)
+        valid_filename_length = false;
+
+    // Find matching filename
+    if (valid_filename_length) {
+        while (i < 2 && !is_filename_match_found) {
+            j = 0;
+            while (j < SECTOR_SIZE && !is_filename_match_found) {
+                // Checking existing filename in same parent folder
+                if (files_buf[i][j+PARENT_BYTE_OFFSET] == parentIndex) {
+                    // Needed buffer because entry may ignoring null terminator
+                    clear(filename_buffer, 16);
+                    strcpybounded(filename_buffer, files_buf[i]+j+PATHNAME_BYTE_OFFSET, 14);
+                    if (!strcmp(path, filename_buffer)) {
+                        is_filename_match_found = true;
+                        sectors_entry_idx = files_buf[i][j+ENTRY_BYTE_OFFSET];
+                        files_entry_sector_idx = i;
+                        files_entry_idx = j;
+                        if (files_buf[i][j*FILES_ENTRY_SIZE+ENTRY_BYTE_OFFSET] == FOLDER_ENTRY)
+                            is_type_is_file = false;
+                    }
+                }
+                j += FILES_ENTRY_SIZE;
+            }
+            i++;
+        }
+    }
+
+    if (is_filename_match_found) {
+        if (is_type_is_file) {
+            i = 0;
+            // Deleting entry on files filesystem
+            files_buf[files_entry_sector_idx][files_entry_idx + ENTRY_BYTE_OFFSET] = EMPTY_FILES_ENTRY;
+            files_buf[files_entry_sector_idx][files_entry_idx + PARENT_BYTE_OFFSET] = ROOT_PARENT_FOLDER;
+            while (i < 14) {
+                files_buf[files_entry_sector_idx][files_entry_idx + PATHNAME_BYTE_OFFSET + i] = '\0';
+                i++;
+            }
+
+            readSector(sectors_buf, SECTORS_SECTOR);
+            readSector(map_buf, MAP_SECTOR);
+
+            i = 0;
+            sector_read_target = sectors_buf[sectors_entry_idx*SECTORS_ENTRY_SIZE + i];
+            // Deleting entry on sectors and map filesystem
+            while (i < SECTORS_ENTRY_SIZE) {
+                if (sector_read_target > KERNEL_SECTOR_SIZE)
+                    map_buf[sector_read_target] = EMPTY_MAP_ENTRY;
+                sectors_buf[sectors_entry_idx*SECTORS_ENTRY_SIZE + i] = EMPTY_SECTORS_ENTRY;
+                i++;
+                sector_read_target = sectors_buf[sectors_entry_idx*SECTORS_ENTRY_SIZE + i];
+            }
+        }
+
+        // Filesystem records update
+        writeSector(files_buf[0], FILES_SECTOR);
+        writeSector(files_buf[1], FILES_SECTOR + 1);
+        if (is_type_is_file) {
+            writeSector(map_buf, MAP_SECTOR);
+            writeSector(sectors_buf, SECTORS_SECTOR);
+        }
+    }
+
+
+
+
+    // Error code writing
+    if (!is_filename_match_found)
+        (*returncode) = -1;
+    else if (is_type_is_file)
+        (*returncode) = 0;
+    else
+        (*returncode) = 1;
+}
+
+void executeProgram(char *filename, int segment, int *success, char parentIndex) {
+    // Buat buffer
+    int return_code;
+    int i = 0;
+    char fileBuffer[SECTOR_SIZE*SECTORS_ENTRY_SIZE];
+    // Buka file dengan readFile
+    clear(fileBuffer, SECTOR_SIZE*SECTORS_ENTRY_SIZE);
+    readFile(&fileBuffer, filename, &return_code, parentIndex);
+    // If success, salin dengan putInMemory
+    if (return_code == 0) {
+        // launchProgram
+        for (i = 0; i < SECTOR_SIZE*SECTORS_ENTRY_SIZE; i++)
+            putInMemory(segment, i, fileBuffer[i]);
+        launchProgram(segment);
+    }
+    else
+        *success = -1;
 }
 
 // FIXME : Extra, softlink ln can cause many weird behavior with commands other than readFile and cat

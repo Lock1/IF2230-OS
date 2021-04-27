@@ -14,6 +14,7 @@
 #define CHAR_DOUBLE_QUOTE 0x22
 #define CHAR_SINGLE_QUOTE 0x27
 #define CHAR_SLASH 0x2F
+#define CHAR_TILDE 0x7E
 
 // BIOS Scancodes
 #define SCANCODE_RIGHT_ARROW 0x4D
@@ -56,8 +57,11 @@
 
 // Kernel Maximum Size, if changed ensure dd commands in makefile,
 //                      bootloader.asm, and fscreator set properly
-#define KERNEL_SECTOR_SIZE 31
+#define KERNEL_SECTOR_SIZE 16
 
+// Logo filename, put file on ROOT_PARENT_FOLDER
+#define LOGO_FILENAME "logo.hoho"
+#define EMPTY_CACHE "_NULL"
 
 // Macro for filesystem syscalls
 // Filesytem location
@@ -81,11 +85,18 @@
 #define FILLED_MAP_ENTRY 0xFF // If sector are filled
 
 // Flags in files filesystem
+// Structure,
+// P | S | Filename | L (optional)
+// 1 | 1 | 14 or 13 | 0 or 1
 #define ROOT_PARENT_FOLDER 0xFF // Flag for "P" byte
+#define BIN_PARENT_FOLDER 0x00 // Flag for "P" byte
 #define EMPTY_FILES_ENTRY 0xFE // Flag for "S" byte
 #define FOLDER_ENTRY 0xFF // Flag for "S" byte
+#define SOFTLINK_ENTRY 0xFD // Flag for "L" byte
+#define HARDLINK_ENTRY 0xFC // Flag for "L" byte
 #define PARENT_BYTE_OFFSET 0x0 // "P" byte, parent folder index
 #define ENTRY_BYTE_OFFSET 0x1 // "S" byte, entry index at sectors filesystem
+#define LINK_BYTE_OFFSET 0xF // "L" byte, link type
 #define PATHNAME_BYTE_OFFSET 0x2 // 14 bytes, filled with pathnames
 
 // Predefined values in sectors filesystem

@@ -18,10 +18,13 @@
 void getDirectoryTable(char *buffer);
 // WARNING : No bound checking
 // Get all directory table, put in buffer
+void shell();
 
 
-
-
+// int main() {
+//     shell();
+//     return 0;
+// }
 
 
 
@@ -409,8 +412,15 @@ char cd(char *dirtable, char *dirstr, char current_dir) {
     int returncode = 0;
     char new_dir_idx = directoryEvaluator(dirtable, dirstr, &returncode, current_dir);
     // If success return new dir index
-    if (returncode == 0)
-        return new_dir_idx;
+    if (returncode == 0) {
+        if (dirtable[new_dir_idx*FILES_ENTRY_SIZE+ENTRY_BYTE_OFFSET] == FOLDER_ENTRY)
+            return new_dir_idx;
+        else {
+            // Else, entry is not folder
+            print("cd: target type is a file\n", BIOS_WHITE);
+            return current_dir;
+        }
+    }
     else {
         // Else, return original dir
         print("cd: path not found\n", BIOS_WHITE);
@@ -463,7 +473,7 @@ void cat(char *dirtable, char *filename, char target_dir) {
 
     clear(file_read, FILE_SIZE_MAXIMUM);
     // Take last argv, use it as filename
-    readFile(file_read, directory_name[dirnamecount-1], &returncode, eval_dir);
+    read(file_read, directory_name[dirnamecount-1], &returncode, eval_dir);
     if (returncode == -1) {
         print("cat: ", BIOS_GRAY);
         print(directory_name[dirnamecount-1], BIOS_GRAY);
@@ -475,8 +485,15 @@ void cat(char *dirtable, char *filename, char target_dir) {
             print(directory_name[dirnamecount-1], BIOS_WHITE);
             print(" is a folder", BIOS_WHITE);
         }
-        else
+        else {
+            i = 0;
+            while (i < FILE_SIZE_MAXIMUM && file_read[i] != CHAR_NULL) {
+                if (file_read[i] == CHAR_CARRIAGE_RETURN)
+                    file_read[i] = CHAR_SPACE;
+                i++;
+            }
             print(file_read, BIOS_GRAY);
+        }
     }
     print("\n", BIOS_GRAY);
 }
@@ -499,7 +516,7 @@ void ln(char *dirtable, char target_dir, char flags, char *target, char *linknam
     // For simplicity, only 2 flags either hard / soft link available
     // For more fancy version, use bitmasking
     clear(file_read, FILE_SIZE_MAXIMUM);
-    readFile(file_read, target, &returncode, target_dir);
+    read(file_read, target, &returncode, target_dir);
     if (returncode == -1) {
         print("ln: ", BIOS_GRAY);
         print(target, BIOS_GRAY);
@@ -633,9 +650,9 @@ void shell() {
         shellInput(commands_history, directory_table, current_dir_index);
 
         // Scroll up if cursor at lower screen
-        while (getCursorPos(1) > 20) {
+        while (getKeyboardCursor(1) > 20) {
             scrollScreen();
-            setCursorPos(getCursorPos(1)-1, 0);
+            setKeyboardCursor(getKeyboardCursor(1)-1, 0);
             showKeyboardCursor();
         }
 
@@ -705,7 +722,7 @@ void shell() {
         else if (!strcmp("mkdir", arg_vector[0])) {
             if (argc == 2) {
                 mkdir(arg_vector[1], current_dir_index);
-                getDirectoryTable(directory_table); // Reload
+                getDirectoryTable(directory_table);
             }
             else
                 print("Usage : mkdir <name>\n", BIOS_WHITE);
@@ -723,7 +740,10 @@ void shell() {
                     print(arg_vector[3], BIOS_WHITE);
                     print(" exist ", BIOS_WHITE);
                 }
-                getDirectoryTable(directory_table);
+                else {
+                    // If success writing to file, load new updated dirtable
+                    getDirectoryTable(directory_table);
+                }
             }
         }
         else if (!strcmp("", arg_vector[0])) {
