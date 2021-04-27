@@ -38,7 +38,7 @@ Instruksi untuk memasang virtual machine sudah cukup banyak dan mudah diakses de
 `Cara install virtualbox dan ubuntu` pada search engine.
 
 
-
+---
 ### 2. Pemasangan alat-alat
 ![Install tools embedded](other/markdown-img/milestone-1/installing-tools-command.jpg)
 
@@ -61,7 +61,7 @@ Ketiga file `.asm` (`bootloader.asm`, `kernel.asm`, `lib.asm`) diletakkan pada f
 ![Unzipping](other/markdown-img/milestone-1/unzip-kit.jpg)
 
 
-
+---
 ### 3. Persiapan disk image
 Setelah memindahkan file ke folder yang terkait, buatlah folder `out` dan file baru tak berekstensi bernama `makefile`.
 Bukalah file tersebut menggunakan text editor dan tambahkan recipe baru `all`, `clean`, dan `createbaseimage`. Tambahkan
@@ -102,13 +102,40 @@ Jalankan command `make createbaseimage` dan cek pada folder out.
 
 
 
-
+---
 ### 4. Bootloader
+Tambahkan kode pada spesifikasi ke `makefile` dengan recipe bernama `insertbootloader`.
+
+![boot insert](other/markdown-img/milestone-1/bootloader-insertion.jpg)
+
+Perintah `nasm` seperti compiling pada umumnya, menerima source file (dalam kasus ini `src/asm/bootloader.asm`) dan
+mengoutputkan ke `out/bootloader` dengan flag `-o`.
+
+`dd` digunakan untuk memasukan binary executable hasil kompilasi `nasm` ke `out/mangga.img` yang memiliki ukuran 1 sektor
+`bs=512` bytes dan diulangi sebanyak `count=1`. Flag `conv=notrunc` menyuruh `dd` untuk tidak merubah apapun pada sektor
+selain sektor target `if=out/bootloader` yaitu sektor 0.
+
+Jalankan `make insertbootloader` dan hasilnya akan terlihat seperti berikut pada hex editor
+
+![boot result](other/markdown-img/milestone-1/bootloader-hxd.jpg)
+
+---
+
+Pada tahap ini disarankan untuk mengecek [tambahan hex editor](#2-hex-editor) yang dapat digunakan mengecek hasil
+build sistem operasi. Nantinya hex editor akan digunakan lagi secara ekstensif pada debugging dan pembuatan milestone 2
+ filesystem.
+
+---
+
+### 5. Pembuatan kernel
 **TBA**
 
 
 
----
+
+
+
+
 
 ## Tambahan
 ### 1. Script instalasi alat-alat
@@ -126,6 +153,28 @@ Perintah tersebut akan menuliskan command untuk memasang dependencies dan mengar
 bernama `tools-install.sh`. Catatan, `bash` script umumnya perlu diberikan `chmod +x <filename>` terlebih dahulu
 agar dapat dieksekusi seperti normal. Contoh eksekusi `bash` script `./tools-install.sh` jika sedang berada pada
 lokasi direktori yang sama.
+
+
+### 2. Hex editor
+![HxD](other/markdown-img/milestone-1/hxd-sample.jpg)
+
+**HxD hex editor**
+
+![hexedit](other/markdown-img/milestone-1/hexedit-sample.jpg)
+
+**hexedit hex editor**
+
+Terdapat banyak hex editor yang dapat digunakan untuk mengedit dan membaca file binary secara hexadecimal. Kedua hex editor
+diatas merupakan hex editor umum yang ada pada Windows dan Linux distribution. Hex editor nanti akan digunakan pada
+milestone 2 pembuatan filesystem yang memerlukan pengecekan apakah disk I/O yang dioperasikan telah memenuhi keinginan atau
+belum.
+
+HxD hex editor dapat didownload pada link berikut [https://mh-nexus.de/en/hxd/](https://mh-nexus.de/en/hxd/).
+HxD tersedia pada Windows 64-bit dan 32-bit.
+
+`hexedit` merupakan command line utility yang umumnya dapat secara langsung didownload menggunakan package manager
+masing-masing distro, contoh untuk instalasi `hexedit` pada Ubuntu `sudo apt-get install hexedit`.
+
 <!--
 Add later
 https://wiki.osdev.org/Real_Mode#Information
