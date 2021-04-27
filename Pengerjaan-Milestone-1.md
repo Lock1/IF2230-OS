@@ -128,12 +128,28 @@ build sistem operasi. Nantinya hex editor akan digunakan lagi secara ekstensif p
 ---
 
 ### 5. Pembuatan kernel
+Secara singkat bagian ini dapat mengikuti secara langsung spesifikasi pembuatan kernel dengan membuat file baru `kernel.c`
+pada folder `src`. Isilah `kernel.c` dengan kode yang terdapat pada spesifikasi milestone 1 dan sedikit modifikasi untuk
+mengikuti standar koding C.
+
+![Kernel firststep](other/markdown-img/milestone-1/kernel-c-firststep.jpg)
+
+Setelah membuat file tersebut tambahkan kode berikut pada `makefile`
+
+![Kernel base makefile](other/markdown-img/milestone-1/kernel-basemakefile.jpg)
+
+Line `if [ ! -d "out/obj" ]; then mkdir out/obj; if` mengecek apakah ada folder `obj` pada folder `out`, jika tidak ada
+maka buat folder tersebut dengan `mkdir out/obj`.
+
+Seperti sebelumnya `bcc` dan `nasm` mencompile source code menjadi object file dengan flag yang sesuai. Flag `-ansi` dan
+`-f as86` memberikan informasi terkait cara kompilasi `bcc` dan `nasm`.
+
+`ld86` digunakan untuk melink semua object file dan mengeluarkan dengan nama `out/kernel`.
+Flag `-d` sangat penting ketika proses linking, cek pada [catatan README.md](../README.md#catatan-penting-ketika-melakukan-pengerjaan).
+
+Parameter tambahan `seek=1` pada `dd` digunakan untuk memasukkan input file ke sektor 1.
+
 **TBA**
-
-
-
-
-
 
 
 
@@ -155,6 +171,7 @@ agar dapat dieksekusi seperti normal. Contoh eksekusi `bash` script `./tools-ins
 lokasi direktori yang sama.
 
 
+
 ### 2. Hex editor
 ![HxD](other/markdown-img/milestone-1/hxd-sample.jpg)
 
@@ -174,6 +191,13 @@ HxD tersedia pada Windows 64-bit dan 32-bit.
 
 `hexedit` merupakan command line utility yang umumnya dapat secara langsung didownload menggunakan package manager
 masing-masing distro, contoh untuk instalasi `hexedit` pada Ubuntu `sudo apt-get install hexedit`.
+
+
+
+### 3. Penjelasan assembly kernel.asm
+Sebagian besar kode assembly sudah dijelaskan pada spesifikasi pembuatan kernel,
+bagian ini hanya menjelaskan ulang dengan cara yang lain.
+**TBA**
 
 <!--
 Add later
