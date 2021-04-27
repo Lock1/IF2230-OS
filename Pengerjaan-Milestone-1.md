@@ -48,9 +48,14 @@ Instalasi alat-alat dapat dimasukkan kedalam script jika ingin mempermudah pengg
 cek pembuatan script pada section [tambahan script tools](#tambahan)
 
 Setelah alat telah didownload dan install, buka dan unzip
-[kit-1.zip](original-milestone/other/rules and guidelines/kit-1.zip) pada suatu lokasi.
+[kit-1.zip](original-milestone/other) pada suatu lokasi.
 
 
+![Unzipping](other/markdown-img/milestone-1/unzip-kit.jpg)
+
+Buatlah folder baru bernama `src` yang dalamnya berisi folder `asm` dan `bochs-config`.
+Ketiga file `.asm` (`bootloader.asm`, `kernel.asm`, `lib.asm`) diletakkan pada folder `asm` dan
+`if2230.config` pada folder `bochs-config`.
 
 ### 3. Persiapan disk image
 **TBA**
