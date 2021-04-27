@@ -6,7 +6,14 @@ Target dari rewriting
   untuk mengusahakan readibiity yang tinggi.
 - Melakukan redesign sistem untuk mencapai constraint pada milestone lebih
   cleaner.
+- Penulisan step-by-step pengerjaan dan commit yang mewakili langkah-langkah pengerjaan.
 
+## Pengerjaan Milestone
+Milestone   | Link readme markdown
+---------   | --------------------
+Milestone 1 | [Pengerjaan-Milestone-1](Pengerjaan-Milestone-1.md)
+Milestone 2 | [Pengerjaan-Milestone-2](Pengerjaan-Milestone-2.md)
+Milestone 3 | [Pengerjaan-Milestone-3](Pengerjaan-Milestone-3.md)
 
 <!-- ALSA - Vcxsrv -
 internal readme
