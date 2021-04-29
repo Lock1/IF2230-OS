@@ -134,6 +134,10 @@ mengikuti standar koding C.
 
 ![Kernel firststep](other/markdown-img/milestone-1/kernel-c-firststep.jpg)
 
+Keyword `extern` digunakan untuk memberi tahu kepada `bcc` atau compiler lain untuk menganggap fungsi tersebut
+akan disediakan pada file source code yang lain. Atau dapat dikatakan `extern` memperbolehkan pemrogram mendeklarasikan
+fungsi yang tidak diberikan definisi pada file tersebut.
+
 Setelah membuat file tersebut tambahkan kode berikut pada `makefile`
 
 ![Kernel base makefile](other/markdown-img/milestone-1/kernel-basemakefile.jpg)
@@ -145,15 +149,31 @@ Seperti sebelumnya `bcc` dan `nasm` mencompile source code menjadi object file d
 `-f as86` memberikan informasi terkait cara kompilasi `bcc` dan `nasm`.
 
 `ld86` digunakan untuk melink semua object file dan mengeluarkan dengan nama `out/kernel`.
-Flag `-d` sangat penting ketika proses linking, cek pada [catatan README.md](../README.md#catatan-penting-ketika-melakukan-pengerjaan).
+Flag `-d` sangat penting ketika proses linking, cek pada [catatan README.md](README.md#catatan-penting-ketika-melakukan-pengerjaan).
 
 Parameter tambahan `seek=1` pada `dd` digunakan untuk memasukkan input file ke sektor 1.
 
+---
+
+Jalankan `make insertbasekernel` dan pada hex editor akan terlihat pada `mangga.img`
+
+![Kernel insertion](other/markdown-img/milestone-1/kernel-base-insert.jpg)
+
+---
+
+### 6. Menjalankan sistem operasi
 **TBA**
 
 
 
+
+
+---
 ## Tambahan
+Berikut adalah beberapa informasi tambahan yang digunakan untuk menjelaskan detail-detail, fungsionalitas tambahan, dan
+alat-alat yang dapat digunakan untuk membantu proses pembuatan sistem operasi.
+
+---
 ### 1. Script instalasi alat-alat
 Untuk mempermudah pengguna lain dalam setup menjalankan sistem operasi yang dibuat,
 dependencies installation dapat dimasukkan kedalam `bash` script sederhana.
@@ -171,7 +191,7 @@ agar dapat dieksekusi seperti normal. Contoh eksekusi `bash` script `./tools-ins
 lokasi direktori yang sama.
 
 
-
+---
 ### 2. Hex editor
 ![HxD](other/markdown-img/milestone-1/hxd-sample.jpg)
 
@@ -193,13 +213,98 @@ HxD tersedia pada Windows 64-bit dan 32-bit.
 masing-masing distro, contoh untuk instalasi `hexedit` pada Ubuntu `sudo apt-get install hexedit`.
 
 
-
+---
 ### 3. Penjelasan assembly kernel.asm
 Sebagian besar kode assembly sudah dijelaskan pada spesifikasi pembuatan kernel,
 bagian ini hanya menjelaskan ulang dengan cara yang lain.
-**TBA**
 
-<!--
-Add later
-https://wiki.osdev.org/Real_Mode#Information
--->
+---
+
+`void putInMemory (int segment, int address, char character)`
+
+Fungsi tersebut menuliskan angka 1 byte yang bernama `character` kepada memori yang terletak pada `0x10*segment + address`.
+Umumnya segment bernilai kelipatan dari `0x1000` hal ini dikarenakan biasanya segment hanya digunakan ketika ingin mengakses
+memori diatas 16-bit address (`0x0000` hingga `0xFFFF`). Perhatikan bahwa nilai `segment` dikalikan `0x10` terlebih dahulu
+sehingga dapat mengakses memori address `0x10000` hingga `0x1FFFF` jika nilai `segment` adalah `0x1000`
+(Perkalian hexadecimal `0x10*0x1000` menghasilkan `0x10000`).
+
+Pada sisi assembly, terdapat **segment register** untuk **setiap register data** yang ada. Secara implisit,
+nilai yang terletak pada segment register akan dikalikan `0x10` ketika meng-fetch suatu data. Contoh register instruksi `ip`
+ berhubungan dengan segment register `cs` yaitu data segment, secara implisit setiap kali CPU mengambil instruksi akan
+mengambil pada address `0x10*cs + ip`. Misal nilai `cs` diset pada `0x1000` dan `ip` terletak pada `0xC400`, CPU akan
+mengambil instruksi yang terletak pada `0x1000*0x10 + 0xC400` yaitu `0x1C400`, bukan instruksi pada `0xC400`. Segment
+ register tidak dipergunakan lagi jika ingin memasuki **protected mode**. Segment register umumnya memiliki nama yang sama
+ dengan **struktur segmentasi memori x86**, untuk lebih jelasnya cek
+ [x86 memory segmentation](https://en.wikipedia.org/wiki/X86_memory_segmentation).
+
+
+![putinmemory asm](other/markdown-img/milestone-1/put-in-memory.jpg)
+
+Implementasi `putInMemory` pada `.asm` secara singkat mengganti sementara segment register `ds` ke target `segment`
+yang terletak pada `[bp+4]` dan memindahkan 1 byte integer `character` ke lokasi `address` pada instruksi `mov [si], cl`.
+
+---
+
+`int interrupt (int number, int AX, int BX, int CX, int DX)`
+
+Seperti namanya, fungsi `interrupt()` akan melakukan suatu interrupt `number` yang diberikan argumen vektor `AX`, `BX`, `CX`
+, dan `DX`. Contohnya pemanggilan `interrupt(0x10, 0x0C0E, 0x0, 256, 128);` akan melakukan interrupt `0x10` yang
+menyediakan fasilitas I/O. Jika belum familiar dengan cara kerja hexadecimal dan 16-bit register, dapat mengecek
+[appendix hexadecimal dan register](Appendix.md#4-hexadecimal-dan-register).
+Contoh diatas akan dijelaskan lebih lanjut pada appendix hexadecimal dan register.
+
+Interrupt merupakan fasilitas pada BIOS yang disediakan oleh komputer yang berdasarkan IBM PC. Fitur ini umumnya tidak
+digunakan lagi pada **protected mode**, sistem operasi yang sedang dibuat merupakan sistem operasi yang bekerja pada
+**real mode**. Interrupt dipergunakan untuk melakukan fasilitas-fasilitas input-output dasar pada hardware yang digunakan.
+
+Instruksi interrupt akan membuat CPU untuk mengakses
+[interrupt vector table](https://en.wikipedia.org/wiki/Interrupt_vector_table) yang berisikan address-address fungsi atau
+prosedur yang akan dijalankan ketika interrupt dipanggil. Fungsi dan prosedur tersebut dinamakan **interrupt handler**.
+BIOS menyediakan beberapa interrupt handler yang dapat digunakan pemrogram, interrupt yang tersedia dapat dicek pada halaman
+ [BIOS interrupt call](https://en.wikipedia.org/wiki/BIOS_interrupt_call).
+
+Sistem operasi yang dibuat mencoba untuk mengikuti fitur-fitur yang tersedia pada sistem operasi **DOS**, penjelasan
+menarik terkait hal ini dapat dicek pada bagian [fun fact DOS](#dos-dan-sistem-operasi). Fitur yang biasanya ada pada
+DOS adalah interrupt `0x21` yang memiliki banyak sekali fitur yang dapat digunakan pengguna sistem operasi.
+Penjelasan lebih detail terkait interrupt `0x21` akan dijelaskan pada `void makeInterrupt21()` dan
+`void handleInterrupt21()`.
+
+
+![interrupt asm](other/markdown-img/milestone-1/interrupt.jpg)
+
+Implementasi assembly `interrupt()` secara singkat merupakan wrapper dari instruksi `INT` dan memindahkan
+parameter-parameter ke register yang bersangkutan. Instruksi `INT` meminta sebuah angka tetap sehingga diperlukan
+**self-modifying code**, informasi tersebut dapat dicek pada bagian [fun fact](#self-modifying-code). Hasil interrupt
+yang dikembalikan pada register `AX` akan dihapus `AH` agar hanya mengembalikan nilai `AL` pada instruksi `mov ah, 0`.
+
+---
+
+`void makeInterrupt21()` dan `void interrupt21ServiceRoutine()`
+
+Prosedur ini memiliki tujuan untuk memasang address `interrupt21ServiceRoutine()` pada **interrupt vector table**
+ dengan lokasi relatif `0x21` terhadap tabel. Interrupt vector table `0x21` akan diisi dengan address
+ `interrupt21ServiceRoutine()` yang akan dipanggil ketika `INT 0x21` terjadi.
+
+
+![makeinterrupt asm](other/markdown-img/milestone-1/make-interrupt.jpg)
+
+![interruptroutine asm](other/markdown-img/milestone-1/interrupt-21-routine.jpg)
+
+Implementasi `makeInterrupt()` secara singkat akan menyiapkan address `interrupt21ServiceRoutine()` dan memasukkan pada
+interrupt vector table. `interrupt21ServiceRoutine()` akan mengambil register-register dan memasukkannya sebagai argumen
+pemanggilan fungsi `handleInterrupt21()`. Prosedur handle interrupt
+
+
+---
+## Fun fact
+### Real mode dan protected mode
+<!-- TODO : Add https://wiki.osdev.org/Real_Mode#Information -->
+
+---
+### DOS dan sistem operasi
+Sistem operasi yang dibuat merupakan sebuah klon sederhana dari **DOS** (Disk operating system). Sistem operasi ini
+dijalankan pada **1.44 MB floppy disk**. Pada pengkonfigurasian `bochs` sebelumnya mengganti `floppya: 1_44=out/mangga.img`
+yang memberitahukan kepada emulator `bochs` untuk memasukkan 1.44 MB floppy disk `mangga.img` ke mesin.
+
+### Self-modifying code
+<!-- TODO : Add -->
