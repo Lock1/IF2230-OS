@@ -11,11 +11,6 @@ ini akan ditulis step-by-step pengerjaan dan penjelasan tentang hal terkait.
 
 
 
-
-
-
-
-
 ## Pengerjaan
 ### 1. Persiapan instalasi alat-alat yang digunakan
 ![Install instruction embedded image](other/markdown-img/milestone-1/installing-tools.jpg)
@@ -37,8 +32,9 @@ dapat menggunakan [virtual machine](https://en.wikipedia.org/wiki/Virtual_machin
 Instruksi untuk memasang virtual machine sudah cukup banyak dan mudah diakses dengan mencari
 `Cara install virtualbox dan ubuntu` pada search engine.
 
+<br/>
+<br/>
 
----
 ### 2. Pemasangan alat-alat
 ![Install tools embedded](other/markdown-img/milestone-1/installing-tools-command.jpg)
 
@@ -61,7 +57,9 @@ Ketiga file `.asm` (`bootloader.asm`, `kernel.asm`, `lib.asm`) diletakkan pada f
 ![Unzipping](other/markdown-img/milestone-1/unzip-kit.jpg)
 
 
----
+<br/>
+<br/>
+
 ### 3. Persiapan disk image
 Setelah memindahkan file ke folder yang terkait, buatlah folder `out` dan file baru tak berekstensi bernama `makefile`.
 Bukalah file tersebut menggunakan text editor dan tambahkan recipe baru `all`, `clean`, dan `createbaseimage`. Tambahkan
@@ -101,8 +99,9 @@ Jalankan command `make createbaseimage` dan cek pada folder out.
 ![dd testing](other/markdown-img/milestone-1/disk-image-test.jpg)
 
 
+<br/>
+<br/>
 
----
 ### 4. Bootloader
 Tambahkan kode pada spesifikasi ke `makefile` dengan recipe bernama `insertbootloader`.
 
@@ -125,7 +124,8 @@ Pada tahap ini disarankan untuk mengecek [tambahan hex editor](#2-hex-editor) ya
 build sistem operasi. Nantinya hex editor akan digunakan lagi secara ekstensif pada debugging dan pembuatan milestone 2
  filesystem.
 
----
+<br/>
+<br/>
 
 ### 5. Pembuatan kernel
 Secara singkat bagian ini dapat mengikuti secara langsung spesifikasi pembuatan kernel dengan membuat file baru `kernel.c`
@@ -159,16 +159,47 @@ Jalankan `make insertbasekernel` dan pada hex editor akan terlihat pada `mangga.
 
 ![Kernel insertion](other/markdown-img/milestone-1/kernel-base-insert.jpg)
 
----
+<br/>
+<br/>
 
 ### 6. Menjalankan sistem operasi
+Setelah memastikan tahap sebelumnya telah berjalan dengan normal, sekarang sistem operasi dapat diuji dengan dijalankan.
+Buatlah file baru bernama `run.sh` yang berisikan kode `bochs -f src/bochs-config/if2230.config`. Setelah file dibuat, buka
+file `if2230.config` dengan text editor, carilah `floppya: 1_44=system.img`. Ganti konfigurasi tersebut ke nama disc image
+yang dibuat (beserta relative pathing terhadap root). Contoh jika menggunakan `mangga.img` pada folder `out`, kode tersebut
+menjadi `floppya: 1_44=out/mangga.img`.
+
+![Bochs config](other/markdown-img/milestone-1/bochs-configurating.jpg)
+
+---
+
+Setelah itu kembali ke folder root dan jalankan `./run.sh` (Catatan kecil untuk WSL, jangan lupa menjalankan X server!).
+Akan terlihat window baru bernama `Bochs x86-64 emulator` yang berisikan panel hitam.
+
+![Bochs black](other/markdown-img/milestone-1/bochs-black.jpg)
+
+Ketik `c` pada terminal dan tekan enter, jika kernel telah dimasukkan dengan normal akan keluar seperti berikut
+
+![Bochs first run](other/markdown-img/milestone-1/bochs-first-test.jpg)
+
+Perhatikan pada pojok kiri atas terdapat tulisan `Hai` dalam warna magenta seperti yang tertulis pada `main()`.
+
+<br/>
+<br/>
+
+### 7. Pembuatan printString dan readString
 **TBA**
 
 
 
 
 
----
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
 ## Tambahan
 Berikut adalah beberapa informasi tambahan yang digunakan untuk menjelaskan detail-detail, fungsionalitas tambahan, dan
 alat-alat yang dapat digunakan untuk membantu proses pembuatan sistem operasi.
@@ -191,7 +222,9 @@ agar dapat dieksekusi seperti normal. Contoh eksekusi `bash` script `./tools-ins
 lokasi direktori yang sama.
 
 
----
+<br/>
+<br/>
+
 ### 2. Hex editor
 ![HxD](other/markdown-img/milestone-1/hxd-sample.jpg)
 
@@ -212,8 +245,9 @@ HxD tersedia pada Windows 64-bit dan 32-bit.
 `hexedit` merupakan command line utility yang umumnya dapat secara langsung didownload menggunakan package manager
 masing-masing distro, contoh untuk instalasi `hexedit` pada Ubuntu `sudo apt-get install hexedit`.
 
+<br/>
+<br/>
 
----
 ### 3. Penjelasan assembly kernel.asm
 Sebagian besar kode assembly sudah dijelaskan pada spesifikasi pembuatan kernel,
 bagian ini hanya menjelaskan ulang dengan cara yang lain.
@@ -292,19 +326,32 @@ Prosedur ini memiliki tujuan untuk memasang address `interrupt21ServiceRoutine()
 
 Implementasi `makeInterrupt()` secara singkat akan menyiapkan address `interrupt21ServiceRoutine()` dan memasukkan pada
 interrupt vector table. `interrupt21ServiceRoutine()` akan mengambil register-register dan memasukkannya sebagai argumen
-pemanggilan fungsi `handleInterrupt21()`. Prosedur handle interrupt
+pemanggilan fungsi `handleInterrupt21()`.
 
 
----
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
 ## Fun fact
 ### Real mode dan protected mode
 <!-- TODO : Add https://wiki.osdev.org/Real_Mode#Information -->
 
----
+
+<br/>
+<br/>
+
 ### DOS dan sistem operasi
 Sistem operasi yang dibuat merupakan sebuah klon sederhana dari **DOS** (Disk operating system). Sistem operasi ini
 dijalankan pada **1.44 MB floppy disk**. Pada pengkonfigurasian `bochs` sebelumnya mengganti `floppya: 1_44=out/mangga.img`
 yang memberitahukan kepada emulator `bochs` untuk memasukkan 1.44 MB floppy disk `mangga.img` ke mesin.
+
+
+<br/>
+<br/>
 
 ### Self-modifying code
 <!-- TODO : Add -->
