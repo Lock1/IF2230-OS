@@ -30,7 +30,9 @@ Untuk pengguna selain distribusi linux dan tidak ingin memasang sistem operasi b
 dapat menggunakan [virtual machine](https://en.wikipedia.org/wiki/Virtual_machine) seperti
 [Oracle VirtualBox](https://www.virtualbox.org/) atau [VMWare](https://www.vmware.com/).
 Instruksi untuk memasang virtual machine sudah cukup banyak dan mudah diakses dengan mencari
-`Cara install virtualbox dan ubuntu` pada search engine.
+`Cara install virtualbox dan ubuntu` pada search engine seperti [google](https://www.google.com/).
+
+
 
 <br/>
 <br/>
@@ -55,6 +57,7 @@ Ketiga file `.asm` (`bootloader.asm`, `kernel.asm`, `lib.asm`) diletakkan pada f
 `if2230.config` pada folder `bochs-config`.
 
 ![Unzipping](other/markdown-img/milestone-1/unzip-kit.jpg)
+
 
 
 <br/>
@@ -99,6 +102,7 @@ Jalankan command `make createbaseimage` dan cek pada folder out.
 ![dd testing](other/markdown-img/milestone-1/disk-image-test.jpg)
 
 
+
 <br/>
 <br/>
 
@@ -124,13 +128,15 @@ Pada tahap ini disarankan untuk mengecek [tambahan hex editor](#2-hex-editor) ya
 build sistem operasi. Nantinya hex editor akan digunakan lagi secara ekstensif pada debugging dan pembuatan milestone 2
  filesystem.
 
+
+
 <br/>
 <br/>
 
 ### 5. Pembuatan kernel
 Secara singkat bagian ini dapat mengikuti secara langsung spesifikasi pembuatan kernel dengan membuat file baru `kernel.c`
 pada folder `src`. Isilah `kernel.c` dengan kode yang terdapat pada spesifikasi milestone 1 dan sedikit modifikasi untuk
-mengikuti standar koding C.
+mengikuti cara koding C pada umumnya.
 
 ![Kernel firststep](other/markdown-img/milestone-1/kernel-c-firststep.jpg)
 
@@ -159,6 +165,8 @@ Jalankan `make insertbasekernel` dan pada hex editor akan terlihat pada `mangga.
 
 ![Kernel insertion](other/markdown-img/milestone-1/kernel-base-insert.jpg)
 
+
+
 <br/>
 <br/>
 
@@ -184,11 +192,77 @@ Ketik `c` pada terminal dan tekan enter, jika kernel telah dimasukkan dengan nor
 
 Perhatikan pada pojok kiri atas terdapat tulisan `Hai` dalam warna magenta seperti yang tertulis pada `main()`.
 
+
+
 <br/>
 <br/>
 
 ### 7. Pembuatan printString dan readString
+Jika sistem operasi sudah berhasil untuk menuliskan `Hai` dalam warna magenta pada tahap sebelumnya, maka fungsionalitas
+lain seperti `printString` dan `readString` sudah dapat diimplementasikan pada `kernel.c`. Kode yang diberikan pada
+spesifikasi dapat dipindahkan ke `kernel.c`.
+
+![Kernel declaration](other/markdown-img/milestone-1/kernel-declaration.jpg)
+
+---
+
+Prosedur yang paling mudah diimplementasi terlebih dahulu adalah `void clear()`. Prosedur `clear()` berfungsi untuk
+membersihkan **1 byte** array `buffer` sebanyak `length` bytes atau mengisi `buffer` dengan `0x00` sebanyak `length`.
+Sederhananya dapat menggunakan loop `for` untuk mengisi buffer tersebut dengan `0x00`.
+
+![Clear implementation](other/markdown-img/milestone-1/clear-imp.jpg)
+
+Loop tersebut akan mengisi dari awal array `buffer` hingga batas `length` tercapai. Setelah itu prosedur akan berhenti.
+
+---
+
+Prosedur selanjutnya yang akan diimplementasikan adalah `void printString()`. Prosedur `printString()` menuliskan isi
+array `string` ke layar. Dapat digunakan loop `while` sederhana untuk menuliskan isi `string` hingga ditemukan `0x00` atau
+**null terminator**.
+
+![Simple print implementation](other/markdown-img/milestone-1/simple-print.jpg)
+
+Pada `interrupt(0x10, AX, 0x000F, 0, 0);` digunakan fitur yang disediakan pada BIOS yaitu
+[INT 10h](https://en.wikipedia.org/wiki/INT_10H).
+
+<br/>
+
+Berikut adalah potongan screenshot parameter `INT 10h` dari link diatas
+
+![Int 10h args](other/markdown-img/milestone-1/int-10h.jpg)
+
+`interrupt(0x10, AX, 0x000F, 0, 0);`
+
+Argumen pertama adalah nomer interrupt yang akan dipanggil, dalam kasus ini adalah `0x10`.
+
+Argumen kedua merupakan gabungan dari `AH` dan `AL`. Pada gambar diatas terlihat bahwa untuk mengakses **Teletype output**
+diperlukan nilai `AH = 0Eh` atau dalam notasi lain `AH = 0x0E`. Bagian register `AL` membawa nilai karakter dalam **ASCII**.
+Operator `|` adalah **bitwise or**, yang akan menggabungkan `AH` dan `AL` menjadi satu dalam `AX`.
+
+<!-- Berikut gambaran operasi bitwise OR -->
+<!-- TODO : Add from github markdown editor -->
+
+Argumen ketiga `BX` terdiri dari `BH` sebagai **page number** dan `BL` sebagai **kode warna**. Page number digunakan untuk
+melakukan [double buffering](https://en.wikipedia.org/wiki/Multiple_buffering) dan untuk kasus sederhana tidak terlalu
+penting untuk digunakan, sehingga menggunakan page number default `0x00`. Kode warna yang digunakan merupakan
+[BIOS color attributes](https://en.wikipedia.org/wiki/BIOS_color_attributes), kode `0x0F` merepresentasikan warna putih.
+
+Argumen ke empat dan kelima seperti pada tabel `INT 10h`, tidak digunakan untuk operasi penulisan karakter
+**Teletype output**.
+
+---
 **TBA**
+
+
+
+<br/>
+<br/>
+
+### 8. Pemisahan source code dan pembersihan
+**TBA**
+
+
+
 
 
 
@@ -338,8 +412,8 @@ pemanggilan fungsi `handleInterrupt21()`.
 
 ## Fun fact
 ### Real mode dan protected mode
+**TBA**
 <!-- TODO : Add https://wiki.osdev.org/Real_Mode#Information -->
-
 
 <br/>
 <br/>
@@ -354,4 +428,5 @@ yang memberitahukan kepada emulator `bochs` untuk memasukkan 1.44 MB floppy disk
 <br/>
 
 ### Self-modifying code
+**TBA**
 <!-- TODO : Add -->

@@ -25,6 +25,19 @@ Milestone   | Link readme markdown
 Milestone 1 | [Pengerjaan-Milestone-1](Pengerjaan-Milestone-1.md)
 Milestone 2 | [Pengerjaan-Milestone-2](Pengerjaan-Milestone-2.md)
 Milestone 3 | [Pengerjaan-Milestone-3](Pengerjaan-Milestone-3.md)
+Appendix    | [Appendix](Appendix.md)
+
+
+## Alat tambahan yang digunakan
+Ketika membuat tahap pengerjaan, digunakan beberapa alat tambahan yang digunakan untuk membantu menjelaskan dan
+ visualisasi. Berikut beberapa alat-alat yang digunakan
+
+| Alat                                            |
+| ----                                            |
+| [manim](https://github.com/3b1b/manim)          |
+| [texlive-minimal](https://www.tug.org/texlive/) |
+
+**TBA**
 
 
 
