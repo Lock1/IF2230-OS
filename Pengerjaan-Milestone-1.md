@@ -231,6 +231,8 @@ Berikut adalah potongan screenshot parameter `INT 10h` dari link diatas
 
 ![Int 10h args](other/markdown-img/milestone-1/int-10h.jpg)
 
+<br/>
+
 `interrupt(0x10, AX, 0x000F, 0, 0);`
 
 Argumen pertama adalah nomer interrupt yang akan dipanggil, dalam kasus ini adalah `0x10`.
@@ -253,8 +255,65 @@ penting untuk digunakan, sehingga menggunakan page number default `0x00`. Kode w
 Argumen ke empat dan kelima seperti pada tabel `INT 10h`, tidak digunakan untuk operasi penulisan karakter
 **Teletype output**.
 
+<br/>
+
+Secara singkat kode tersebut akan mengulangi proses penulisan karakter dengan `interrupt()` hingga ditemukan karakter
+null terminator. Bagian pengecekan karakter berada pada `while (string[i] != 0x00)`.
+
 ---
-**TBA**
+
+Prosedur terakhir yang diimplementasikan adalah `readString()`. Prosedur ini membaca input keyboard dan memasukkannya
+kedalam array yang berada pada address `string`. Loop pembacaan `while` akan berhenti jika pengguna menekan tombol
+ **enter**.
+
+![Simple gets implementation](other/markdown-img/milestone-1/simple-readstring.jpg)
+
+BIOS interrupt yang digunakan pada `readString()` adalah [INT 16h](https://en.wikipedia.org/wiki/INT_16H).
+
+<br/>
+
+Berikut adalah potongan screenshot dari link
+
+![Int 16h args](other/markdown-img/milestone-1/int-16h.jpg)
+
+<br/>
+
+`singleCharBuffer = interrupt(0x16, 0x0000, 0, 0, 0);`
+
+Perhatikan pada potongan kode diatas, hasil return dari `interrupt()` merupakan hasil pembacaan keyboard oleh `INT 16h`.
+ Bagian [penjelasan kernel.asm](#3-penjelasan-assembly-kernelasm) telah menjelaskan bahwa fungsi `interrupt()` hanya akan
+ mengembalikan nilai `AL` ke register `AX`. Pada potongan `INT 16h` diatas terlihat bahwa `INT 16h` dengan `AH = 0x00` akan
+ menghasilkan 2 nilai yang ditaruh pada `AH` dan `AL`. Untuk kasus sederhana hasil return `AH` yaitu **scancode** dapat
+ diabaikan, sehingga `readString()` hanya membutuhkan hasil return `AL` untuk membaca input keyboard pengguna. Fungsi
+ `interrupt()` akan mengembalikan nilai **ASCII** karakter keyboard dan menaruhnya pada `singleCharBuffer`.
+
+<br/>
+
+`if (singleCharBuffer != '\r')`
+
+Pengecekan `singleCharBuffer != '\r'` digunakan untuk mengecek apakah input yang baru dibaca bukan tombol enter. Dalam
+branch tersebut dilakukan penulisan karakter yang dibaca dengan `interrupt(0x10, AXprintChar, 0x000F, 0, 0);` setelah itu
+memasukkan karakter kedalam `string`.
+
+Branch `else` melakukan penggeseran keyboard kursor ke pojok kiri dan kebawah. Penggeseran kursor ke pojok kiri menggunakan
+karakter `\r` atau **Carriage return** dan penggeseran kebawah menggunakan `\n` atau **Line feed**.
+
+---
+
+Setelah mengimplementasikan ketiga fungsi diatas, dapat ditambahkan kode berikut pada `main`
+
+![Last mil1 test](other/markdown-img/milestone-1/milestone-1-testing.jpg)
+
+Loop `while` tersebut akan diulangi terus menerus ketika melakukan testing. `clear()` akan membersihkan `buffer` sebelum
+digunakan sebagai tempat pembacaan input dengan `readString()`. Setelah dibaca `printString()` akan menuliskan hasil
+pembacaan ke layar.
+
+---
+
+Lakukan `make insertbasekernel` dan jalankan `./run.sh`, jika tidak ada permasalahan maka sistem operasi dapat menerima
+input dan menuliskan ke layar seperti screenshot berikut
+
+![Last mil1 test run](other/markdown-img/milestone-1/milestone-1-running.jpg)
 
 
 
