@@ -8,8 +8,57 @@ Pengerjaan milestone 1 secara umum sudah dijelaskan pada spesifikasi milestone 1
 ini akan ditulis step-by-step pengerjaan dan penjelasan tentang hal terkait.
 
 
+### Daftar isi
+#### Pengerjaan
+| No | Isi                                                                          |
+| -- | ---------------------------------------------------------------------------  |
+| 1  | [Persiapan instalasi alat](#1-persiapan-instalasi-alat-alat-yang-digunakan)  |
+| 2  | [Pemasangan alat](#2-pemasangan-alat-alat)                                   |
+| 3  | [Persiapan disk image](#3-persiapan-disk-image)                              |
+| 4  | [Pembuatan bootloader](#4-bootloader)                                        |
+| 5  | [Pembuatan kernel.c](#5-pembuatan-kernel)                                    |
+| 6  | [Menjalankan sistem operasi](#6-menjalankan-sistem-operasi)                  |
+| 7  | [Pembuatan print dan read string](#7-pembuatan-printstring-dan-readstring)   |
+| 8  | [Pembersihan kode](#8-pemisahan-source-code-dan-pembersihan)                 |
 
 
+<br/>
+
+#### Pengerjaan bonus
+| No | Isi                |
+| -- | -----------------  |
+| 1  | Logo dalam ASCII   |
+| 2  | Logo dalam grafis  |
+<!-- TODO : Add -->
+
+<br/>
+
+#### Tambahan
+| No | Isi                                                        |
+| -- | ---------------------------------------------------------  |
+| 1  | [Script pemasangan alat](#1-script-instalasi-alat-alat)    |
+| 2  | [Hex editor](#2-hex-editor)                                |
+| 3  | [Penjelasan kernel.asm](#3-penjelasan-assembly-kernelasm)  |
+
+
+<br/>
+
+#### Fun fact
+| No | Isi                                                        |
+| -- | --------------------------------------------------------   |
+| 1  | [Real dan protected mode](#real-mode-dan-protected-mode)   |
+| 2  | [DOS dan sistem operasi](#dos-dan-sistem-operasi)          |
+| 3  | [Self modifying code](#self-modifying-code)                |
+
+
+
+
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
 ## Pengerjaan
 ### 1. Persiapan instalasi alat-alat yang digunakan
@@ -311,6 +360,12 @@ pembacaan ke layar.
 
 ---
 
+Tambahkan kode berikut pada `makefile` untuk melengkapi resep `all`
+
+![Cleanup makefile](other/markdown-img/milestone-1/cleanup-makefile.jpg)
+
+---
+
 Lakukan `make insertbasekernel` dan jalankan `./run.sh`, jika tidak ada permasalahan maka sistem operasi dapat menerima
 input dan menuliskan ke layar seperti screenshot berikut
 
@@ -351,6 +406,21 @@ Setelah pemindahan tersebut tes lagi dengan `make insertbasekernel` dan jalankan
 operasi berhasil dijalankan oleh `bochs` dan tidak melakukan apapun setelah booting seperti gambar
 
 ![Cleanup, bochs](other/markdown-img/milestone-1/bochs-header.jpg)
+
+
+
+
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+## Pengerjaan bonus
+### 1. Logo dalam ASCII
+**TBA**
+
 
 
 
@@ -429,8 +499,8 @@ nilai yang terletak pada segment register akan dikalikan `0x10` ketika meng-fetc
  berhubungan dengan segment register `cs` yaitu data segment, secara implisit setiap kali CPU mengambil instruksi akan
 mengambil pada address `0x10*cs + ip`. Misal nilai `cs` diset pada `0x1000` dan `ip` terletak pada `0xC400`, CPU akan
 mengambil instruksi yang terletak pada `0x1000*0x10 + 0xC400` yaitu `0x1C400`, bukan instruksi pada `0xC400`. Segment
- register tidak dipergunakan lagi jika ingin memasuki **protected mode**. Segment register umumnya memiliki nama yang sama
- dengan **struktur segmentasi memori x86**, untuk lebih jelasnya cek
+ register tidak dipergunakan lagi jika ingin memasuki **64-bit protected mode**. Segment register umumnya memiliki nama
+ yang sama dengan **struktur segmentasi memori x86**, untuk lebih jelasnya cek
  [x86 memory segmentation](https://en.wikipedia.org/wiki/X86_memory_segmentation).
 
 
@@ -492,6 +562,8 @@ pemanggilan fungsi `handleInterrupt21()`.
 
 
 
+
+
 <br/>
 <br/>
 <br/>
@@ -500,8 +572,15 @@ pemanggilan fungsi `handleInterrupt21()`.
 
 ## Fun fact
 ### Real mode dan protected mode
-**TBA**
-<!-- TODO : Add https://wiki.osdev.org/Real_Mode#Information -->
+Sistem operasi ini dibuat dalam **Real mode** yang merupakan mode sederhana tanpa fitur-fitur pengamanan tambahan seperti
+**virtual memory**. Namun hanya pada real mode fitur BIOS interrupt dapat digunakan, pengaktifan **Protected mode** akan
+mematikan fungsionalitas BIOS interrupt. Virtual memory yang dimiliki protected mode juga meningkatkan kompleksitas sistem
+operasi dan aplikasi pengguna wajib untuk melakukan seluruh operasi low-level melewati system call sistem operasi yang
+ dibuat.
+
+Real mode secara singkat mempermudah dan mempersingkat pembuatan sistem operasi dengan konsekuensi tidak ada fitur pengaman
+yang ada pada protected mode. Beberapa informasi lebih jauh dapat di cek pada
+[OSDev](https://wiki.osdev.org/Real_Mode).
 
 <br/>
 <br/>
@@ -516,5 +595,25 @@ yang memberitahukan kepada emulator `bochs` untuk memasukkan 1.44 MB floppy disk
 <br/>
 
 ### Self-modifying code
-**TBA**
-<!-- TODO : Add -->
+Pada kode assembly `interrupt()` terdapat instruksi `INT 0x00` yang dimodifikasi dengan instruksi lain diatasnya,
+berikut adalah kode assembly asli `lib.asm`
+
+![Lib interrupt](other/markdown-img/milestone-1/lib-interrupt.jpg)
+
+Kode assembly tersebut merupakan **satu kesatuan utuh**, `_interrupt:` dan `intr` hanya merupakan sebuah **label** bukan
+seperti definisi fungsi pada bahasa **C**. Newline dan whitespace diantara `mov dx,[bp+12]` dan `mov ah,0` hanya untuk
+memperjelas source code, tidak memiliki efek kepada hasil kompilasi assembler `nasm`.
+
+Singkatnya instruksi `mov si,intr` mengambil address dari label `intr:` yang berisi instruksi `int 0x00` memasukkan ke
+register `si`. Perhatikan pada gambar berikut
+
+![Interrupt dump](other/markdown-img/milestone-1/interrupt-dump.jpg)
+
+Gambar diatas merupakan potongan screenshot hasil `objdump -D -b binary -m i8086 lib.o` setelah mengcompile dengan
+`nasm -f as86 lib.asm lib.o`. Pada address `5F` terlihat instruksi `int` memiliki opcode `CD` dan byte selanjutnya pada
+address `60` merupakan address target interrupt yang ditulis `0x00` dalam assembly. Register `si` sebelumnya membawa
+ address label `intr:` yaitu `5F`, dan instruksi `mov [si+1],al` memasukkan nilai `al` ke lokasi address `5F+1` yaitu `60`.
+
+Instruksi `mov ax,[bp+4]` memindahkan target interrupt ke `ax` sebelum dilakukan modifikasi kode diatas, sehingga hasil
+instruksi `mov [si+1],al` merubah instruksi `int 0x00` yang memiliki opcode `CD 00` menjadi `int al`, dengan `al` merupakan
+target interrupt yang diberikan pada parameter fungsi `interrupt()`.

@@ -1,4 +1,4 @@
-all: createbaseimage
+all: createbaseimage insertbootloader insertbasekernel
 
 clean:
 	rm -r out/*
