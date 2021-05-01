@@ -1,11 +1,14 @@
 # Tugas Besar - IF2230 - Sistem Operasi
 **Kelompok Mangga K04**
 
-**TBA** \
-Repository ini akan digunakan sebagai duplikat public dari repository private yang terdapat pada GitHub Classroom informatika19 \
+Repository ini akan digunakan sebagai duplikat public dari repository private yang terdapat pada GitHub Classroom informatika19
+
+Catatan : Branch `main` untuk sementara dijadikan repository untuk pengerjaan asli milestone sistem operasi, untuk pengerjaan ulang dan penulisan step-by-step pengerjaan berada pada branch [rewrite](https://github.com/Lock1/OS-IF2230/tree/rewrite) dan branch-branch milestone.
+
 Log : 3 April 2021, Upload v2.0.0 \
 Log : 23 April 2021, Penambahan README.md milestone 3 \
-Log : 27 April 2021, Penambahan milestone 3 dan branch baru
+Log : 27 April 2021, Penambahan milestone 3 dan branch baru \
+Log : 28 April 2021, Pengerjaan ulang milestone 1, cek pada [milestone-1](https://github.com/Lock1/OS-IF2230/tree/milestone-1)
 
 ## Anggota:
 Nama                    | NIM
