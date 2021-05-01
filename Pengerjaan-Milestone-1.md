@@ -155,7 +155,8 @@ Seperti sebelumnya `bcc` dan `nasm` mencompile source code menjadi object file d
 `-f as86` memberikan informasi terkait cara kompilasi `bcc` dan `nasm`.
 
 `ld86` digunakan untuk melink semua object file dan mengeluarkan dengan nama `out/kernel`.
-Flag `-d` sangat penting ketika proses linking, cek pada [catatan README.md](README.md#catatan-penting-ketika-melakukan-pengerjaan).
+Flag `-d` sangat penting ketika proses linking, cek pada
+[catatan README.md](README.md#catatan-penting-ketika-melakukan-pengerjaan).
 
 Parameter tambahan `seek=1` pada `dd` digunakan untuk memasukkan input file ke sektor 1.
 
@@ -321,10 +322,35 @@ input dan menuliskan ke layar seperti screenshot berikut
 <br/>
 
 ### 8. Pemisahan source code dan pembersihan
-**TBA**
+Setelah implementasi `clear()`, `printString()`, dan `readString()` berhasil,
+**spesifikasi wajib milestone 1 telah selesai**. Untuk spesifikasi nomor 6, cara kerja `interrupt()` dan cara kerja kode
+ `kernel.asm` dapat dijelaskan sendiri dengan mengikuti arahan spesifikasi atau mengecek bagian
+[tambahan penjelasan kernel.asm](#3-penjelasan-assembly-kernelasm)]. Bagian ini hanya membersihkan kode yang ada pada
+`kernel.c`.
 
+---
 
+Buatlah folder baru bernama `kernel-header` terletak pada folder `src`, didalam folder tersebut buat file baru bernama
+`kernel.h`.
 
+![Cleanup, making header](other/markdown-img/milestone-1/cleanup-header.jpg)
+
+---
+
+Buka file `kernel.c` dan potong / cut bagian deklarasi. Setelah dipotong, hapus pengetesan yang dilakukan pada tahap
+sebelumnya pada `main()` dan tambahkan `#include` seperti berikut
+
+![Cleanup, kernel.c](other/markdown-img/milestone-1/cleanup-kernel.jpg)
+
+Catatan, jika mengalami permasalahan setelah melakukan pemindahan deklarasi, pastikan terdapat **newline** antara komentar
+ dan `#include` seperti yang terdapat pada [catatan README.md](README.md#catatan-penting-ketika-melakukan-pengerjaan).
+
+---
+
+Setelah pemindahan tersebut tes lagi dengan `make insertbasekernel` dan jalankan `./run.sh`, jika berhasil maka sistem
+operasi berhasil dijalankan oleh `bochs` dan tidak melakukan apapun setelah booting seperti gambar
+
+![Cleanup, bochs](other/markdown-img/milestone-1/bochs-header.jpg)
 
 
 

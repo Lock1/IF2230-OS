@@ -9,15 +9,42 @@
 
 
 
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
 ## Catatan penting ketika melakukan pengerjaan
 - Pastikan flag `-d` selalu ada ketika menjalankan perintah `ld86`. Flag tersebut membuat `ld86` menghapus header pada
 output file dan menjadikan output sebagai [MSDOS COM executable](https://en.wikipedia.org/wiki/COM_file).
 - Konsekuensi dari flag `-d` atas adalah **urutan definisi fungsi berpengaruh terhadap program**. Pastikan definisi fungsi
 pertama kali merupakan `int main()`. Deklarasikan fungsi selain `main()` pada header atau bagian atas program jika ingin
 memanggil pada main.
+- Preprosesor `bcc` terkadang melakukan keanehan jika terdapat komentar dan `#include` bersebelahan baris. Jika mengalami
+permasalahan tersebut, tambahkan **newline** diantara komentar dan `#include`.
+
+![Cleanup, kernel.c bcc failure](other/markdown-img/milestone-1/bcc-include-fail.jpg)
+
+Kegagalan compile `bcc`
+
+<br/>
+<br/>
+
+![Cleanup, kernel.c bcc success](other/markdown-img/milestone-1/bcc-include-success.jpg)
+
+Compile `bcc` berhasil
 
 
 
+
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
 ## Pengerjaan Milestone
 Milestone   | Link readme markdown
@@ -27,6 +54,15 @@ Milestone 2 | [Pengerjaan-Milestone-2](Pengerjaan-Milestone-2.md)
 Milestone 3 | [Pengerjaan-Milestone-3](Pengerjaan-Milestone-3.md)
 Appendix    | [Appendix](Appendix.md)
 
+
+
+
+
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 
 ## Alat tambahan yang digunakan
 Ketika membuat tahap pengerjaan, digunakan beberapa alat tambahan yang digunakan untuk membantu menjelaskan dan

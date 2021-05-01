@@ -1,22 +1,9 @@
 // Kernel C source code
-extern void putInMemory(int segment, int address, char character);
 
-void handleInterrupt21(int AX, int BX, int CX, int DX);
-void printString(char *string);
-void readString(char *string);
-void clear(char *buffer, int length); // Fungsi untuk mengisi buffer dengan 0
+#include "kernel-header/kernel.h"
 
 int main() {
-    // Pengujian clear, readString, dan printString
-    char buffer[512];
     makeInterrupt21();
-
-    while (1) {
-        clear(buffer, 512);
-        readString(buffer);
-        printString(buffer);
-    }
-
     // Digunakan agar kernel tidak restarting
     while (1);
 }
