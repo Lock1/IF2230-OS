@@ -239,8 +239,11 @@ Argumen kedua merupakan gabungan dari `AH` dan `AL`. Pada gambar diatas terlihat
 diperlukan nilai `AH = 0Eh` atau dalam notasi lain `AH = 0x0E`. Bagian register `AL` membawa nilai karakter dalam **ASCII**.
 Operator `|` adalah **bitwise or**, yang akan menggabungkan `AH` dan `AL` menjadi satu dalam `AX`.
 
-<!-- Berikut gambaran operasi bitwise OR -->
-<!-- TODO : Add from github markdown editor -->
+Berikut gambaran operasi bitwise OR pada `AH` dan `AL` untuk menghasilkan `AX`
+
+https://user-images.githubusercontent.com/30568743/116785698-1e62c200-aac5-11eb-9e1e-dd2d56102d12.mp4
+
+<br/>
 
 Argumen ketiga `BX` terdiri dari `BH` sebagai **page number** dan `BL` sebagai **kode warna**. Page number digunakan untuk
 melakukan [double buffering](https://en.wikipedia.org/wiki/Multiple_buffering) dan untuk kasus sederhana tidak terlalu
