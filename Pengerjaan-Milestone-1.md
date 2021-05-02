@@ -405,7 +405,7 @@ Catatan, jika mengalami permasalahan setelah melakukan pemindahan deklarasi, pas
 Buka file file `kernel.h` yang sebelumnya telah dibuat pada folder `kernel-header` dan paste deklarasi kode sebelumnya
 pada file tersebut.
 
-![Cleanup, kernel.h](other/markdown-img/milestone-1/cleanup-inside-kernel-header.jpg)
+![Cleanup, kernel.h](other/markdown-img/milestone-1/cleanup-inside-header.jpg)
 
 ---
 
@@ -414,6 +414,17 @@ Pada folder header buatlah sebuah file baru bernama `bool.h`. Header ini akan di
 data boolean yang digunakan untuk memperjelas kode.
 
 ![Cleanup, boolean](other/markdown-img/milestone-1/cleanup-bool.jpg)
+
+---
+
+Isi file `bool.h` dengan kode berikut
+
+![Cleanup, bool implementation](other/markdown-img/milestone-1/cleanup-inside-bool.jpg)
+
+Secara singkat implementasi boolean, `#define bool char` memberitahu kepada preprosesor untuk mengganti tulisan `bool`
+pada source code menjadi `char`. `#define true 1` dan `#define false 0` juga melakukan hal yang sama kepada tulisan `true`
+dan `false`. Untuk penjelasan `bool` dan penggunaan `#ifndef`, `#endif` lebih detail akan dijelaskan pada
+[tambahan tentang include guard](#4-include-guard-dan-tipe-data-boolean).
 
 ---
 
@@ -580,6 +591,90 @@ Prosedur ini memiliki tujuan untuk memasang address `interrupt21ServiceRoutine()
 Implementasi `makeInterrupt()` secara singkat akan menyiapkan address `interrupt21ServiceRoutine()` dan memasukkan pada
 interrupt vector table. `interrupt21ServiceRoutine()` akan mengambil register-register dan memasukkannya sebagai argumen
 pemanggilan fungsi `handleInterrupt21()`.
+
+
+<br/>
+<br/>
+
+### 4. Include guard dan tipe data boolean
+#### Include guard
+Pasangan direktif `#ifndef <name>`, `#define <name>` diawal file dan `#endif` diakhir file dinamai **include guard**.
+Kegunaan dari include guard adalah mencegah terjadinya pendefinisian 2 kali ketika melakukan `#include`. Referensi tentang
+include guard dapat dicek pada [wikipedia](https://en.wikipedia.org/wiki/Include_guard). Berikut adalah ilustrasi sederhana
+ include guard
+
+---
+
+![Include files](other/markdown-img/milestone-1/include-file-list.jpg)
+
+Misalkan ingin membuat suatu program yang menggunakan linked list dan ingin menggunakan node pada implementasinya, pemrogram
+ akan memiliki file list dan node yang nantinya di `#include` didalam program seperti berikut
+
+![Include main source](other/markdown-img/milestone-1/include-main-source.jpg)
+
+---
+
+Implementasi `Node` dan `List` tidak menggunakan include guard seperti berikut
+
+![Include node](other/markdown-img/milestone-1/include-node.jpg)
+
+![Include list](other/markdown-img/milestone-1/include-list.jpg)
+
+Perhatikan pada implementasi `List` terdapat direktif `#include "node.h"`.
+
+---
+
+Jika kode diatas dicompile menggunakan `gcc`, akan terlihat pesan seperti berikut
+
+![Include gcc error](other/markdown-img/milestone-1/include-gcc-error.jpg)
+
+`gcc` mengeluarkan pesan error `node.h:3:16: error: redefinition of ‘struct Node’` yang memiliki arti terdapat definisi
+struktur data yang bernama sama lebih dari sekali.
+
+---
+
+Hal diatas disebabkan preprosesor yang menemukan direktif `#include` akan memasukkan isi `list.h` dan `node.h` sepenuhnya
+menghasilkan kode seperti berikut
+
+![Include preprocessor sub](other/markdown-img/milestone-1/include-pre-sub.jpg)
+
+Kode tersebut merupakan hasil preprosesor yang nantinya akan dibaca oleh compilation unit. Compilation unit menemukan
+ definisi `typedef struct Node {} Node;` dua kali akan berhenti dan mengeluarkan pesan error seperti diatas.
+
+---
+
+Hal diatas dapat diatasi dengan menggunakan include guard pada `node.h`.
+
+![Include guard](other/markdown-img/milestone-1/include-guard.jpg)
+
+Direktif `#ifndef NODE_H` menginstruksikan preprosesor **hanya memasukkan kode** antara `#ifndef` dan `#endif` jika
+ definisi makro `#define NODE_H` tidak pernah ditemukan. `#define NODE_H` setelah `#ifndef` memastikan kode dibawah telah
+ dimasukkan pada suatu source code dengan `#include` sehingga jika dilakukan `#include` berulang akan menghasilkan
+ text kosong.
+
+---
+
+Hasil include guard pada source code `main.c` seperti berikut
+
+![Include guard sub](other/markdown-img/milestone-1/include-guard-sub.jpg)
+
+Definisi `typedef struct Node {} Node;` tidak lagi dilakukan lebih dari satu kali dikarenakan preprosesor telah mengganti
+dan membuang definisi kedua kalinya. Program tersebut akan dicompile secara normal pada `gcc`.
+
+
+<br/>
+<br/>
+
+#### Tipe data boolean pada C
+Tipe data primitif pada bahasa C adalah `char`, `int`, `float`, dan `double`. Bahasa C asli tidak memiliki tipe data
+boolean yang biasanya terdapat pada bahasa yang lebih tinggi seperti Python atau C++. Sehingga untuk mengecek kondisi pada
+control flow seperti `if`, **seluruh** angka selain nol dianggap bernilai **benar** atau **true** dan angka nol dianggap
+memiliki nilai **salah** atau **false**.
+
+Pada bahasa C dan sebagian besar turunan dari C umumnya memperbolehkan casting secara implisit dari tipe data angka ke
+evaluasi boolean pada kondisi control flow seperti `if`, `while`, dan `for`. Karena seluruh angka selain nol dianggap
+true, umumnya implementasi tipe data boolean tidak membutuhkan ukuran yang besar seperti `unsigned long long int` misalnya.
+ Implementasi boolean cukup menggunakan 1 byte tipe data angka `char` saja untuk mengurangi pemborosan penggunaan memori.
 
 
 
