@@ -22,8 +22,17 @@ output file dan menjadikan output sebagai [MSDOS COM executable](https://en.wiki
 - Konsekuensi dari flag `-d` atas adalah **urutan definisi fungsi berpengaruh terhadap program**. Pastikan definisi fungsi
 pertama kali merupakan `int main()`. Deklarasikan fungsi selain `main()` pada header atau bagian atas program jika ingin
 memanggil pada main.
-- Preprosesor `bcc` terkadang melakukan keanehan jika terdapat komentar dan `#include` bersebelahan baris. Jika mengalami
-permasalahan tersebut, tambahkan **newline** diantara komentar dan `#include`.
+- Jika mengalami permasalahan `*** buffer overflow detected ***` pada `bochs` ketika menjalankan sistem operasi, salah
+satu workaround yang dapat dicoba adalah menambahkan `sudo` pada utility `bochs` seperti `sudo bochs -f if2230.config`.
+
+![Bochs failure](other/markdown-img/milestone-1/bochs-overflow.jpg)
+
+Permasalahan buffer overflow ketika menjalankan `bochs`
+
+<br/>
+
+- Preprosesor `bcc` terkadang melakukan keanehan jika terdapat komentar dan direktif `#` bersebelahan baris. Jika mengalami
+permasalahan tersebut, tambahkan **newline** diantara komentar dan direktif `#`.
 
 ![Cleanup, kernel.c bcc failure](other/markdown-img/milestone-1/bcc-include-fail.jpg)
 

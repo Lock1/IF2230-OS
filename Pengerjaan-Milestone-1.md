@@ -380,7 +380,7 @@ input dan menuliskan ke layar seperti screenshot berikut
 Setelah implementasi `clear()`, `printString()`, dan `readString()` berhasil,
 **spesifikasi wajib milestone 1 telah selesai**. Untuk spesifikasi nomor 6, cara kerja `interrupt()` dan cara kerja kode
  `kernel.asm` dapat dijelaskan sendiri dengan mengikuti arahan spesifikasi atau mengecek bagian
-[tambahan penjelasan kernel.asm](#3-penjelasan-assembly-kernelasm)]. Bagian ini hanya membersihkan kode yang ada pada
+[tambahan penjelasan kernel.asm](#3-penjelasan-assembly-kernelasm). Bagian ini hanya membersihkan kode yang ada pada
 `kernel.c`.
 
 ---
@@ -402,7 +402,28 @@ Catatan, jika mengalami permasalahan setelah melakukan pemindahan deklarasi, pas
 
 ---
 
-Setelah pemindahan tersebut tes lagi dengan `make insertbasekernel` dan jalankan `./run.sh`, jika berhasil maka sistem
+Buka file file `kernel.h` yang sebelumnya telah dibuat pada folder `kernel-header` dan paste deklarasi kode sebelumnya
+pada file tersebut.
+
+![Cleanup, kernel.h](other/markdown-img/milestone-1/cleanup-inside-kernel-header.jpg)
+
+---
+
+Buatlah sebuah folder baru pada `src` bernama `std`, didalam folder tersebut buatlah folder lagi bernama `header`.
+Pada folder header buatlah sebuah file baru bernama `bool.h`. Header ini akan digunakan sebagai implementasi sederhana tipe
+data boolean yang digunakan untuk memperjelas kode.
+
+![Cleanup, boolean](other/markdown-img/milestone-1/cleanup-bool.jpg)
+
+---
+
+Tambahkan direktif `#include "std/header/bool.h"` pada `kernel.c` dan ganti angka `1` pada kondisi loop ke `true`.
+
+![Cleanup, kernel boolean](other/markdown-img/milestone-1/cleanup-kernel-bool.jpg)
+
+---
+
+Setelah pemindahan diatas, tes lagi dengan `make insertbasekernel` dan jalankan `./run.sh`, jika berhasil maka sistem
 operasi berhasil dijalankan oleh `bochs` dan tidak melakukan apapun setelah booting seperti gambar
 
 ![Cleanup, bochs](other/markdown-img/milestone-1/bochs-header.jpg)

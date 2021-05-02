@@ -1,11 +1,12 @@
 // Kernel C source code
 
 #include "kernel-header/kernel.h"
+#include "std/header/bool.h"
+
 
 int main() {
     makeInterrupt21();
-    // Digunakan agar kernel tidak restarting
-    while (1);
+    while (true);
 }
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {
