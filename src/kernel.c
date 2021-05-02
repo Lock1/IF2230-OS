@@ -2,12 +2,23 @@
 
 #include "kernel-header/kernel.h"
 #include "std/header/bool.h"
+#include "logo.h"
 
+void clearScreen();
 
 int main() {
     makeInterrupt21();
+    clearScreen();
+    printString(LOGO_ASCII);
+    // Digunakan agar kernel tidak restarting
     while (true);
 }
+
+void clearScreen() {
+    interrupt(0x10, 0x0010, 0, 0, 0);
+    interrupt(0x10, 0x0003, 0, 0, 0);
+}
+
 
 void handleInterrupt21(int AX, int BX, int CX, int DX) {
     // Handler interrupt 0x21

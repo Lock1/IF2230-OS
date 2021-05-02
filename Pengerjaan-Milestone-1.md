@@ -7,6 +7,7 @@ yang akan diemulasikan pada emulator `bochs`.
 Pengerjaan milestone 1 secara umum sudah dijelaskan pada spesifikasi milestone 1 sendiri, namun pada markdown
 ini akan ditulis step-by-step pengerjaan dan penjelasan tentang hal terkait.
 
+<!-- TODO : Self note : Check #personal for additional manim listing milestone 1 -->
 
 ### Daftar isi
 #### Pengerjaan
@@ -25,11 +26,11 @@ ini akan ditulis step-by-step pengerjaan dan penjelasan tentang hal terkait.
 <br/>
 
 #### Pengerjaan bonus
-| No | Isi                |
-| -- | -----------------  |
-| 1  | Logo dalam ASCII   |
-| 2  | Logo dalam grafis  |
-<!-- TODO : Add -->
+| No | Isi                                        |
+| -- | -----------------------------------------  |
+| 1  | [Logo dalam ASCII](#1-logo-dalam-ascii)    |
+| 2  | [Logo dalam grafis](#2-logo-dalam-grafis)  |
+
 
 <br/>
 
@@ -94,7 +95,7 @@ Instruksi untuk memasang virtual machine sudah cukup banyak dan mudah diakses de
 Jalankan command diatas pada terminal, jika menggunakan distribusi non-Ubuntu yang tidak menggunakan
 package manager `apt`, gunakanlah package manager yang sesuai (contoh `apk` untuk Alpine).
 Instalasi alat-alat dapat dimasukkan kedalam script jika ingin mempermudah pengguna lain,
-cek pembuatan script pada section [tambahan script tools](#tambahan)
+cek pembuatan script pada section [tambahan script tools](#tambahan-1)
 
 Setelah alat telah didownload dan install, buka dan unzip
 [kit-1.zip](original-milestone/other) pada suatu lokasi.
@@ -451,6 +452,77 @@ operasi berhasil dijalankan oleh `bochs` dan tidak melakukan apapun setelah boot
 
 ## Pengerjaan bonus
 ### 1. Logo dalam ASCII
+Pembuatan logo dalam ASCII cukup sederhana dengan menggunakan `printString()` dan konverter ASCII online. Namun sebelum
+melakukan penggambaran logo dalam ASCII, penulisan booting `bochs` dapat dibersihkan terlebih dahulu menggunakan penggantian
+ video mode.
+
+![Bonus clear screen](other/markdown-img/milestone-1/bonus-clearing.jpg)
+
+Kode `interrupt(0x10, AX, 0, 0, 0);` dengan `AH` bernilai `0x00` mengganti video mode ke nilai `AL`. Interrupt pertama
+mengganti video mode ke `0x10` dan interrupt kedua mengembalikan video mode kembali ke `0x03`. Penggantian video mode akan
+mengosongkan video memory buffer atau kata lainnya menghapus seluruh gambar seperti yang diinginkan. Jika dijalankan kode
+diatas akan menghasilkan seperti dibawah
+
+![Bonus clear screen test](other/markdown-img/milestone-1/bonus-clearscreen.jpg)
+
+---
+
+Pindahkan kode pemanggilan `interrupt()` ke sebuah prosedur baru bernama `clearScreen()` seperti berikut
+
+![Bonus clear screen proc](other/markdown-img/milestone-1/bonus-clearscreen-procedure.jpg)
+
+---
+
+Tahap selanjutnya dapat menuliskan ASCII yang diinginkan menggunakan `printString()`, gunakanlah converter yang mudah
+ditemukan dengan keyword `jpg to ASCII` atau lainnya pada search engine seperti [google](https://www.google.com/).
+
+![Bonus converting to ascii](other/markdown-img/milestone-1/bonus-convert.jpg)
+
+---
+
+Setelah mengkonversi target gambar seperti diatas, pindahkan ke hasil konversi tersebut ke file baru bernama `logo.h`
+pada folder `src`, lakukan copy paste ke file tersebut
+
+![Bonus to header](other/markdown-img/milestone-1/bonus-to-header.jpg)
+
+---
+
+Tambahkan `#define LOGO_ASCII "` diatas logo dan tambahkan juga `\n\r` pada setiap akhir baris seperti berikut
+
+![Bonus crlf](other/markdown-img/milestone-1/bonus-crlf.jpg)
+
+---
+
+Lakukan penghapusan newline pada kode dengan tombol *backspace* atau *delete*
+
+![Bonus collapse](other/markdown-img/milestone-1/bonus-collapse.gif)
+
+---
+
+Hasil dari penghapusan diatas adalah `#define LOGO_ASCII "<logo>` yang panjang, tambahkan `"` pada akhir logo untuk menutup
+quotation mark
+
+![Bonus singleline](other/markdown-img/milestone-1/bonus-singleline.jpg)
+
+---
+
+Tambahkan `printString()` dan `#include "logo.h"` di `kernel.c` untuk melakukan pengujian
+
+![Bonus kernel ascii](other/markdown-img/milestone-1/bonus-ascii-test.jpg)
+
+---
+
+Jalankan sistem operasi, jika proses insersi logo ASCII berjalan dengan benar akan terlihat seperti berikut
+
+![Bonus kernel ascii test](other/markdown-img/milestone-1/bonus-ascii-res.jpg)
+
+
+
+
+<br/>
+<br/>
+
+### 2. Logo dalam grafis
 **TBA**
 
 
@@ -508,6 +580,7 @@ HxD tersedia pada Windows 64-bit dan 32-bit.
 
 `hexedit` merupakan command line utility yang umumnya dapat secara langsung didownload menggunakan package manager
 masing-masing distro, contoh untuk instalasi `hexedit` pada Ubuntu `sudo apt-get install hexedit`.
+
 
 <br/>
 <br/>
