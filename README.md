@@ -1,6 +1,8 @@
 # Tugas Besar - IF2230 - Sistem Operasi
 **Kelompok Mangga K04**
 
+![boot](other/img/boot_screen.gif)
+
 Repository ini akan digunakan sebagai duplikat dari repository yang terdapat pada GitHub Classroom informatika19 (https://github.com/informatika19/sistem-operasi-mangga)
 
 Catatan : Branch `main` untuk sementara dijadikan repository untuk pengerjaan asli milestone sistem operasi, untuk pengerjaan ulang dan penulisan step-by-step pengerjaan berada pada branch [rewrite](https://github.com/Lock1/OS-IF2230/tree/rewrite) dan branch-branch milestone.
