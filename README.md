@@ -1,4 +1,9 @@
 # Tugas Besar - IF2230 - Sistem Operasi
+Future edit:
+- Repo ini adalah inspirasi utama 16-bit toy OS, [OS-2022@Sister19](https://github.com/Sister19/OS-2022) (asisten OS round 1)
+- Dan menjadi dasar untuk 32-bit toy OS, OS-2023@Sister20 (asisten OS round 2)
+
+
 **Kelompok Mangga K04**
 
 ![boot](other/img/boot_screen.gif)
