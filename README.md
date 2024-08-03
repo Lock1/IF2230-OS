@@ -3,7 +3,7 @@ Future edit:
 - Repository ini merupakan hasil pengerjaan tugas penulis [sistem-operasi-mangga@informatika19](https://github.com/informatika19/sistem-operasi-mangga) pada tahun 2021
 - Repo ini adalah inspirasi utama 16-bit toy OS, [OS-2022@Sister19](https://github.com/Sister19/OS-2022) (asisten OS round 1)
 - Dan menjadi dasar untuk 32-bit toy OS, [OS-2023@Sister20](https://github.com/Lock1/OS-2023) (asisten OS round 2)
-- And again, 32-bit toy OS dengan context switching OS-2024@labsister21 (Link TBA, WIP & on-going) (asisten OS round 3)
+- And again, 32-bit toy OS dengan context switching [OS-2024@labsister21](https://github.com/Lock1/OS-2024) (asisten OS round 3)
 
 
 **Kelompok Mangga K04**
